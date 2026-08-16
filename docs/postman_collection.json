@@ -2,12 +2,17 @@
   "info": {
     "name": "TechCareerFit - API",
     "_postman_id": "d1f6c6b2-collection",
-    "description": "Collection for frontend developers: auth, CV, ATS, reports, applications, admin",
+    "description": "Collection for frontend developers: auth, CV, ATS, reports, applications, admin. Each request includes sample expected responses to make integration easier.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "base_url", "value": "http://127.0.0.1:8000" },
-    { "key": "access_token", "value": "" }
+    { "key": "access_token", "value": "" },
+    { "key": "cv_id", "value": "" },
+    { "key": "job_id", "value": "" },
+    { "key": "report_id", "value": "" },
+    { "key": "user_id", "value": "" },
+    { "key": "application_id", "value": "" }
   ],
   "item": [
     {
@@ -20,7 +25,24 @@
           "raw": "{\n  \"full_name\": \"Jane Example\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123!\"\n}"
         },
         "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth","register"] }
-      }
+      },
+      "response": [
+        {
+          "name": "Success response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Jane Example\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123!\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth","register"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User registered successfully\"\n}"
+        }
+      ]
     },
     {
       "name": "Auth / Login",
@@ -30,17 +52,109 @@
         "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123!\"\n}" },
         "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth","login"] }
       },
+      "response": [
+        {
+          "name": "Success response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123!\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth","login"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Login successful\",\n  \"access_token\": \"<jwt_token>\",\n  \"token_type\": \"bearer\",\n  \"email\": \"jane@example.com\"\n}"
+        }
+      ],
       "event": [
         {
           "listen": "test",
           "script": {
             "exec": [
-              "// Save access token to collection variable",
               "var json = pm.response.json();",
               "if (json && json.access_token) { pm.collectionVariables.set('access_token', json.access_token); }"
             ],
             "type": "text/javascript"
           }
+        }
+      ]
+    },
+    {
+      "name": "Users / Me",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "url": { "raw": "{{base_url}}/users/me", "host": ["{{base_url}}"], "path": ["users","me"] }
+      },
+      "response": [
+        {
+          "name": "Authenticated user response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/users/me", "host": ["{{base_url}}"], "path": ["users","me"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"7f6d9d6b-5c90-4d6d-8d4a-2d7c0ca9d2f2\",\n  \"full_name\": \"Jane Example\",\n  \"email\": \"jane@example.com\",\n  \"role\": \"admin\",\n  \"created_at\": \"2026-08-16T12:00:00Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Auth / Password Reset - Request",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\"\n}" },
+        "url": { "raw": "{{base_url}}/auth/password-reset/request", "host": ["{{base_url}}"], "path": ["auth","password-reset","request"] }
+      },
+      "response": [
+        {
+          "name": "Dev reset token response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/password-reset/request", "host": ["{{base_url}}"], "path": ["auth","password-reset","request"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Password reset token generated\",\n  \"reset_token\": \"<reset_token>\",\n  \"note\": \"In production, send this token to the user by email.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Auth / Password Reset - Confirm",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"reset_token\": \"<token>\",\n  \"new_password\": \"NewPassword123!\"\n}" },
+        "url": { "raw": "{{base_url}}/auth/password-reset/confirm", "host": ["{{base_url}}"], "path": ["auth","password-reset","confirm"] }
+      },
+      "response": [
+        {
+          "name": "Success response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"reset_token\": \"<token>\",\n  \"new_password\": \"NewPassword123!\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/password-reset/confirm", "host": ["{{base_url}}"], "path": ["auth","password-reset","confirm"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Password has been reset successfully\"\n}"
         }
       ]
     },
@@ -51,25 +165,24 @@
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
         "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] } ] },
         "url": { "raw": "{{base_url}}/cv/upload", "host": ["{{base_url}}"], "path": ["cv","upload"] }
-      }
-    },
-    {
-      "name": "Auth / Password Reset - Request",
-      "request": {
-        "method": "POST",
-        "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\"\n}" },
-        "url": { "raw": "{{base_url}}/auth/password-reset/request", "host": ["{{base_url}}"], "path": ["auth","password-reset","request"] }
-      }
-    },
-    {
-      "name": "Auth / Password Reset - Confirm",
-      "request": {
-        "method": "POST",
-        "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"reset_token\": \"<token>\",\n  \"new_password\": \"NewPassword123!\"\n}" },
-        "url": { "raw": "{{base_url}}/auth/password-reset/confirm", "host": ["{{base_url}}"], "path": ["auth","password-reset","confirm"] }
-      }
+      },
+      "response": [
+        {
+          "name": "Success response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] } ] },
+            "url": { "raw": "{{base_url}}/cv/upload", "host": ["{{base_url}}"], "path": ["cv","upload"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"<cv_id>\",\n  \"message\": \"CV uploaded successfully\",\n  \"file_name\": \"resume.pdf\",\n  \"file_url\": \"<uuid>.pdf\"\n}"
+        }
+      ]
     },
     {
       "name": "CV / Parse",
@@ -78,7 +191,24 @@
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
         "body": { "mode": "raw", "raw": "{\n  \"cv_id\": \"<cv_id>\"\n}" },
         "url": { "raw": "{{base_url}}/cv/{{cv_id}}/parse", "host": ["{{base_url}}"], "path": ["cv","{{cv_id}}","parse"] }
-      }
+      },
+      "response": [
+        {
+          "name": "Parsed CV response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"cv_id\": \"<cv_id>\"\n}" },
+            "url": { "raw": "{{base_url}}/cv/{{cv_id}}/parse", "host": ["{{base_url}}"], "path": ["cv","{{cv_id}}","parse"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"<cv_id>\",\n  \"message\": \"CV parsed successfully\",\n  \"parsed_data\": {\n    \"skills\": [\"Python\", \"FastAPI\", \"SQL\", \"Docker\"],\n    \"experience\": [\"Backend Developer at Acme\"],\n    \"education\": [\"BSc Computer Science\"]\n  }\n}"
+        }
+      ]
     },
     {
       "name": "Jobs / Create",
@@ -87,7 +217,24 @@
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
         "body": { "mode": "raw", "raw": "{\n  \"title\": \"Backend Developer\",\n  \"company\": \"Acme\",\n  \"description\": \"Python, FastAPI, Docker, PostgreSQL\"\n}" },
         "url": { "raw": "{{base_url}}/ats/jobs", "host": ["{{base_url}}"], "path": ["ats","jobs"] }
-      }
+      },
+      "response": [
+        {
+          "name": "Success response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Backend Developer\",\n  \"company\": \"Acme\",\n  \"description\": \"Python, FastAPI, Docker, PostgreSQL\"\n}" },
+            "url": { "raw": "{{base_url}}/ats/jobs", "host": ["{{base_url}}"], "path": ["ats","jobs"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"<job_id>\",\n  \"title\": \"Backend Developer\",\n  \"company\": \"Acme\",\n  \"description\": \"Python, FastAPI, Docker, PostgreSQL\"\n}"
+        }
+      ]
     },
     {
       "name": "ATS / Analyze",
@@ -96,7 +243,24 @@
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
         "body": { "mode": "raw", "raw": "{\n  \"cv_id\": \"<cv_id>\",\n  \"job_id\": \"<job_id>\"\n}" },
         "url": { "raw": "{{base_url}}/ats/analyze", "host": ["{{base_url}}"], "path": ["ats","analyze"] }
-      }
+      },
+      "response": [
+        {
+          "name": "ATS result",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"cv_id\": \"<cv_id>\",\n  \"job_id\": \"<job_id>\"\n}" },
+            "url": { "raw": "{{base_url}}/ats/analyze", "host": ["{{base_url}}"], "path": ["ats","analyze"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"<ats_result_id>\",\n  \"cv_id\": \"<cv_id>\",\n  \"job_id\": \"<job_id>\",\n  \"score\": 82,\n  \"missing_skills\": [\"Redis\", \"Kafka\"],\n  \"recommendations\": [\"Learn Redis caching patterns\", \"Practice Kafka event-driven workflows\"],\n  \"learning_resources\": [\n    {\n      \"skill\": \"Redis\",\n      \"title\": \"Redis Crash Course\",\n      \"provider\": \"freeCodeCamp\",\n      \"url\": \"https://example.com/redis\",\n      \"type\": \"course\",\n      \"level\": \"beginner\"\n    }\n  ]\n}"
+        }
+      ]
     },
     {
       "name": "Reports / Download",
@@ -104,7 +268,23 @@
         "method": "GET",
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
         "url": { "raw": "{{base_url}}/reports/{{report_id}}/download", "host": ["{{base_url}}"], "path": ["reports","{{report_id}}","download"] }
-      }
+      },
+      "response": [
+        {
+          "name": "JSON report payload",
+          "originalRequest": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/reports/{{report_id}}/download", "host": ["{{base_url}}"], "path": ["reports","{{report_id}}","download"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Content-Disposition", "value": "attachment; filename=report_123.json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"<report_id>\",\n  \"user_id\": \"<user_id>\",\n  \"cv_id\": \"<cv_id>\",\n  \"job_id\": \"<job_id>\",\n  \"score\": 82,\n  \"missing_skills\": [\"Redis\", \"Kafka\"],\n  \"recommendations\": [\"Learn Redis caching patterns\"],\n  \"learning_resources\": [\n    {\n      \"skill\": \"Redis\",\n      \"title\": \"Redis Crash Course\",\n      \"provider\": \"freeCodeCamp\",\n      \"url\": \"https://example.com/redis\",\n      \"type\": \"course\",\n      \"level\": \"beginner\"\n    }\n  ]\n}"
+        }
+      ]
     },
     {
       "name": "Applications / Create (job link)",
@@ -113,7 +293,24 @@
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
         "body": { "mode": "raw", "raw": "{\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"status\": \"applied\",\n  \"applied_date\": \"2026-08-15\",\n  \"job_description\": \"Looking for Python, FastAPI, Docker\",\n  \"date_posted\": \"2026-08-10\",\n  \"cv_id\": \"<cv_id>\",\n  \"ats_score\": 65,\n  \"comments\": \"Applied via website\",\n  \"job_link\": \"https://acme.example/jobs/123\"\n}" },
         "url": { "raw": "{{base_url}}/applications/", "host": ["{{base_url}}"], "path": ["applications"] }
-      }
+      },
+      "response": [
+        {
+          "name": "Created application response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"status\": \"applied\",\n  \"applied_date\": \"2026-08-15\",\n  \"job_description\": \"Looking for Python, FastAPI, Docker\",\n  \"date_posted\": \"2026-08-10\",\n  \"cv_id\": \"<cv_id>\",\n  \"ats_score\": 65,\n  \"comments\": \"Applied via website\",\n  \"job_link\": \"https://acme.example/jobs/123\"\n}" },
+            "url": { "raw": "{{base_url}}/applications/", "host": ["{{base_url}}"], "path": ["applications"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"<application_id>\",\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"status\": \"applied\",\n  \"applied_date\": \"2026-08-15\",\n  \"job_description\": \"Looking for Python, FastAPI, Docker\",\n  \"date_posted\": \"2026-08-10\",\n  \"cv_id\": \"<cv_id>\",\n  \"ats_score\": 65,\n  \"comments\": \"Applied via website\",\n  \"job_link\": \"https://acme.example/jobs/123\",\n  \"application_email\": null,\n  \"application_subject\": null\n}"
+        }
+      ]
     },
     {
       "name": "Applications / Create (email)",
@@ -122,7 +319,72 @@
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
         "body": { "mode": "raw", "raw": "{\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"application_email\": \"jobs@acme.example\",\n  \"application_subject\": \"Application: Backend Developer - Jane Example\"\n}" },
         "url": { "raw": "{{base_url}}/applications/", "host": ["{{base_url}}"], "path": ["applications"] }
-      }
+      },
+      "response": [
+        {
+          "name": "Created application response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"application_email\": \"jobs@acme.example\",\n  \"application_subject\": \"Application: Backend Developer - Jane Example\"\n}" },
+            "url": { "raw": "{{base_url}}/applications/", "host": ["{{base_url}}"], "path": ["applications"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"id\": \"<application_id>\",\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"status\": \"applied\",\n  \"applied_date\": \"2026-08-15\",\n  \"job_description\": null,\n  \"date_posted\": null,\n  \"cv_id\": null,\n  \"ats_score\": null,\n  \"comments\": null,\n  \"job_link\": null,\n  \"application_email\": \"jobs@acme.example\",\n  \"application_subject\": \"Application: Backend Developer - Jane Example\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Admin / Stats",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "url": { "raw": "{{base_url}}/admin/", "host": ["{{base_url}}"], "path": ["admin"] }
+      },
+      "response": [
+        {
+          "name": "Admin dashboard summary",
+          "originalRequest": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/admin/", "host": ["{{base_url}}"], "path": ["admin"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"users\": 42,\n  \"cvs\": 18,\n  \"applications\": 29,\n  \"average_ats_score\": 76.5,\n  \"summary\": {\n    \"users\": 42,\n    \"admins\": 3,\n    \"job_seekers\": 39,\n    \"suspended_users\": 2,\n    \"active_applications\": 17\n  },\n  \"charts\": {\n    \"users_by_role\": [\n      { \"label\": \"admin\", \"value\": 3 },\n      { \"label\": \"job_seeker\", \"value\": 39 }\n    ],\n    \"applications_by_status\": [\n      { \"label\": \"applied\", \"value\": 12 },\n      { \"label\": \"interview\", \"value\": 6 },\n      { \"label\": \"offer\", \"value\": 3 }\n    ],\n    \"applications_by_month\": [\n      { \"label\": \"2026-03\", \"value\": 3 },\n      { \"label\": \"2026-04\", \"value\": 5 },\n      { \"label\": \"2026-05\", \"value\": 8 },\n      { \"label\": \"2026-06\", \"value\": 7 },\n      { \"label\": \"2026-07\", \"value\": 10 },\n      { \"label\": \"2026-08\", \"value\": 12 }\n    ],\n    \"ats_score_distribution\": [\n      { \"label\": \"0-49\", \"value\": 2 },\n      { \"label\": \"50-69\", \"value\": 7 },\n      { \"label\": \"70-89\", \"value\": 10 },\n      { \"label\": \"90-100\", \"value\": 5 }\n    ],\n    \"jobs_by_company\": [\n      { \"label\": \"Acme\", \"value\": 9 },\n      { \"label\": \"Globex\", \"value\": 4 },\n      { \"label\": \"Initech\", \"value\": 6 }\n    ]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Admin / Users",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "url": { "raw": "{{base_url}}/admin/users/", "host": ["{{base_url}}"], "path": ["admin","users"] }
+      },
+      "response": [
+        {
+          "name": "User list",
+          "originalRequest": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/admin/users/", "host": ["{{base_url}}"], "path": ["admin","users"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "[\n  {\n    \"id\": \"<user_id>\",\n    \"full_name\": \"Jane Example\",\n    \"email\": \"jane@example.com\",\n    \"role\": \"admin\",\n    \"suspended\": false\n  }\n]"
+        }
+      ]
     },
     {
       "name": "Admin / Create user",
@@ -131,7 +393,24 @@
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
         "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"New User\",\n  \"email\": \"new@example.com\",\n  \"password\": \"Password123!\"\n}" },
         "url": { "raw": "{{base_url}}/admin/users/", "host": ["{{base_url}}"], "path": ["admin","users"] }
-      }
+      },
+      "response": [
+        {
+          "name": "User created",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"New User\",\n  \"email\": \"new@example.com\",\n  \"password\": \"Password123!\"\n}" },
+            "url": { "raw": "{{base_url}}/admin/users/", "host": ["{{base_url}}"], "path": ["admin","users"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User created\",\n  \"id\": \"<new_user_id>\",\n  \"email\": \"new@example.com\"\n}"
+        }
+      ]
     },
     {
       "name": "Admin / Promote user",
@@ -139,7 +418,73 @@
         "method": "POST",
         "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
         "url": { "raw": "{{base_url}}/admin/users/{{user_id}}/promote", "host": ["{{base_url}}"], "path": ["admin","users","{{user_id}}","promote"] }
-      }
+      },
+      "response": [
+        {
+          "name": "Promotion success",
+          "originalRequest": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/admin/users/{{user_id}}/promote", "host": ["{{base_url}}"], "path": ["admin","users","{{user_id}}","promote"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User new@example.com promoted to admin\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Admin / Applications",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "url": { "raw": "{{base_url}}/admin/applications/", "host": ["{{base_url}}"], "path": ["admin","applications"] }
+      },
+      "response": [
+        {
+          "name": "All applications list",
+          "originalRequest": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/admin/applications/", "host": ["{{base_url}}"], "path": ["admin","applications"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "[\n  {\n    \"id\": \"<application_id>\",\n    \"user_id\": \"<user_id>\",\n    \"company\": \"Acme\",\n    \"position\": \"Backend Developer\",\n    \"status\": \"interview\",\n    \"applied_date\": \"2026-08-15\",\n    \"job_description\": \"Looking for Python, FastAPI, Docker\",\n    \"date_posted\": \"2026-08-10\",\n    \"cv_id\": \"<cv_id>\",\n    \"ats_score\": 82,\n    \"comments\": \"Strong match\",\n    \"job_link\": \"https://acme.example/jobs/123\",\n    \"application_email\": null,\n    \"application_subject\": null\n  }\n]"
+        }
+      ]
+    },
+    {
+      "name": "Admin / Update application status",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"interview\"\n}" },
+        "url": { "raw": "{{base_url}}/admin/applications/{{application_id}}/status", "host": ["{{base_url}}"], "path": ["admin","applications","{{application_id}}","status"] }
+      },
+      "response": [
+        {
+          "name": "Status updated",
+          "originalRequest": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"interview\"\n}" },
+            "url": { "raw": "{{base_url}}/admin/applications/{{application_id}}/status", "host": ["{{base_url}}"], "path": ["admin","applications","{{application_id}}","status"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [ { "key": "Content-Type", "value": "application/json" } ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Application status updated\",\n  \"status\": \"interview\"\n}"
+        }
+      ]
     }
   ]
 }
