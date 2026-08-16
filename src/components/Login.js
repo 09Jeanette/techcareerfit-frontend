@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BASE_URL } from '../api/config';
+import { BASE_URL, getStoredUserRole, logLoggedInUser } from '../api/config';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -24,8 +24,45 @@ export default function Login() {
       const contentType = res.headers.get('content-type') || '';
       const data = contentType.includes('application/json') ? await res.json() : { message: await res.text() };
 
+      console.log('Login API response:', data);
+
       if (!res.ok) throw new Error(data.message || 'Login failed');
-      localStorage.setItem('access_token', data.access_token);
+
+      const token = data.access_token;
+      localStorage.setItem('access_token', token);
+
+      const meRes = await fetch(`${BASE_URL}/users/me`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const meData = meRes.ok ? await meRes.json() : null;
+      console.log('Current user profile:', meData);
+
+      const userObject = {
+        id: meData?.id ?? null,
+        email: meData?.email ?? email ?? null,
+        full_name: meData?.full_name ?? null,
+        role: meData?.role ?? null,
+        profile: meData
+      };
+
+      localStorage.setItem('user', JSON.stringify(userObject));
+
+      const role = getStoredUserRole();
+      localStorage.setItem('user_role', role || 'job_seeker');
+
+      console.log('Login detected role:', role);
+      console.log('Stored user object:', userObject);
+      logLoggedInUser('Logged in user after login');
+
+      if (role === 'admin') {
+        navigate('/admin');
+        return;
+      }
+
       navigate('/dashboard');
     } catch (err) {
       setError(err.message);

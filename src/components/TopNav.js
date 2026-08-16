@@ -1,13 +1,31 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../images/logo.png';
+import logo from '../images/csv-logo.svg';
+import { decodeTokenPayload, getStoredUserRole, logLoggedInUser } from '../api/config';
 
 export default function TopNav() {
   const navigate = useNavigate();
   const token = localStorage.getItem('access_token');
+  const claims = decodeTokenPayload(token);
+  const role = getStoredUserRole();
+
+  console.log('Navbar token state:', {
+    hasToken: Boolean(token),
+    tokenPreview: token ? `${token.slice(0, 20)}...` : null,
+    user: {
+      email: claims?.email ?? claims?.user_email ?? claims?.sub ?? null,
+      full_name: claims?.full_name ?? claims?.name ?? claims?.username ?? null,
+      role: claims?.role ?? claims?.user_role ?? claims?.userRole ?? null,
+      rawClaims: claims
+    },
+    role
+  });
+
+  logLoggedInUser('TopNav user debug');
 
   function logout() {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
     navigate('/login');
   }
 
@@ -22,20 +40,19 @@ export default function TopNav() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navMenu">
-          <ul className="navbar-nav ms-auto">
+          <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-1">
             {token ? (
               <>
-                <li className="nav-item"><Link className="nav-link" to="/dashboard">Dashboard</Link></li>
+                <li className="nav-item"><Link className="nav-link" to={role === 'admin' ? '/admin' : '/dashboard'}>{role === 'admin' ? 'Admin' : 'Dashboard'}</Link></li>
                 <li className="nav-item dropdown">
                   <button className="nav-link dropdown-toggle account-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                     Account
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                     <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
-                    <li><button className="dropdown-item logout-button" onClick={logout}>Logout</button></li>
+                    <li><button className="dropdown-item logout-button" type="button" onClick={logout}>Logout</button></li>
                   </ul>
                 </li>
-                {/* <li className="nav-item"><button className="btn btn-sm btn-outline-danger logout-inline" onClick={logout}>Logout</button></li> */}
               </>
             ) : (
               <>
