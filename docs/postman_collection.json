@@ -1,0 +1,127 @@
+{
+  "info": {
+    "name": "TechCareerFit - API",
+    "_postman_id": "d1f6c6b2-collection",
+    "description": "Collection for frontend developers: auth, CV, ATS, reports, applications, admin",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth / Register",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Jane Example\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123!\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth","register"] }
+      }
+    },
+    {
+      "name": "Auth / Login",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"Password123!\"\n}" },
+        "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth","login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Save access token to collection variable",
+              "var json = pm.response.json();",
+              "if (json && json.access_token) { pm.collectionVariables.set('access_token', json.access_token); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV / Upload",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": [] } ] },
+        "url": { "raw": "{{base_url}}/cv/upload", "host": ["{{base_url}}"], "path": ["cv","upload"] }
+      }
+    },
+    {
+      "name": "CV / Parse",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"cv_id\": \"<cv_id>\"\n}" },
+        "url": { "raw": "{{base_url}}/cv/{{cv_id}}/parse", "host": ["{{base_url}}"], "path": ["cv","{{cv_id}}","parse"] }
+      }
+    },
+    {
+      "name": "Jobs / Create",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Backend Developer\",\n  \"company\": \"Acme\",\n  \"description\": \"Python, FastAPI, Docker, PostgreSQL\"\n}" },
+        "url": { "raw": "{{base_url}}/ats/jobs", "host": ["{{base_url}}"], "path": ["ats","jobs"] }
+      }
+    },
+    {
+      "name": "ATS / Analyze",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"cv_id\": \"<cv_id>\",\n  \"job_id\": \"<job_id>\"\n}" },
+        "url": { "raw": "{{base_url}}/ats/analyze", "host": ["{{base_url}}"], "path": ["ats","analyze"] }
+      }
+    },
+    {
+      "name": "Reports / Download",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "url": { "raw": "{{base_url}}/reports/{{report_id}}/download", "host": ["{{base_url}}"], "path": ["reports","{{report_id}}","download"] }
+      }
+    },
+    {
+      "name": "Applications / Create (job link)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"status\": \"applied\",\n  \"applied_date\": \"2026-08-15\",\n  \"job_description\": \"Looking for Python, FastAPI, Docker\",\n  \"date_posted\": \"2026-08-10\",\n  \"cv_id\": \"<cv_id>\",\n  \"ats_score\": 65,\n  \"comments\": \"Applied via website\",\n  \"job_link\": \"https://acme.example/jobs/123\"\n}" },
+        "url": { "raw": "{{base_url}}/applications/", "host": ["{{base_url}}"], "path": ["applications"] }
+      }
+    },
+    {
+      "name": "Applications / Create (email)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"company\": \"Acme\",\n  \"position\": \"Backend Developer\",\n  \"application_email\": \"jobs@acme.example\",\n  \"application_subject\": \"Application: Backend Developer - Jane Example\"\n}" },
+        "url": { "raw": "{{base_url}}/applications/", "host": ["{{base_url}}"], "path": ["applications"] }
+      }
+    },
+    {
+      "name": "Admin / Create user",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"New User\",\n  \"email\": \"new@example.com\",\n  \"password\": \"Password123!\"\n}" },
+        "url": { "raw": "{{base_url}}/admin/users/", "host": ["{{base_url}}"], "path": ["admin","users"] }
+      }
+    },
+    {
+      "name": "Admin / Promote user",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+        "url": { "raw": "{{base_url}}/admin/users/{{user_id}}/promote", "host": ["{{base_url}}"], "path": ["admin","users","{{user_id}}","promote"] }
+      }
+    }
+  ]
+}
