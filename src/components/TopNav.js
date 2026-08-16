@@ -27,12 +27,15 @@ export default function TopNav() {
               <>
                 <li className="nav-item"><Link className="nav-link" to="/dashboard">Dashboard</Link></li>
                 <li className="nav-item dropdown">
-                  <a className="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
+                  <button className="nav-link dropdown-toggle account-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    Account
+                  </button>
                   <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                     <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
-                    <li><button className="dropdown-item" onClick={logout}>Logout</button></li>
+                    <li><button className="dropdown-item logout-button" onClick={logout}>Logout</button></li>
                   </ul>
                 </li>
+                {/* <li className="nav-item"><button className="btn btn-sm btn-outline-danger logout-inline" onClick={logout}>Logout</button></li> */}
               </>
             ) : (
               <>

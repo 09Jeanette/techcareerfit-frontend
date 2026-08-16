@@ -7,11 +7,14 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
+
     try {
       const res = await fetch(`${BASE_URL}/auth/register`, {
         method: 'POST',
@@ -26,6 +29,8 @@ export default function Register() {
       navigate('/login');
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -43,6 +48,11 @@ export default function Register() {
               <h3>Register</h3>
             </div>
             {error && <div className="alert alert-danger">{error}</div>}
+            {isLoading && (
+              <div className="alert alert-warning loading-banner" role="status">
+                Creating your account... please wait.
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label">Full name</label>
@@ -56,7 +66,9 @@ export default function Register() {
                 <label className="form-label">Password</label>
                 <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required />
               </div>
-              <button className="btn btn-primary w-100" type="submit">Register</button>
+              <button className="btn btn-primary w-100" type="submit" disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Register'}
+              </button>
             </form>
           </div>
         </div>

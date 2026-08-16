@@ -54,6 +54,24 @@
       }
     },
     {
+      "name": "Auth / Password Reset - Request",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"jane@example.com\"\n}" },
+        "url": { "raw": "{{base_url}}/auth/password-reset/request", "host": ["{{base_url}}"], "path": ["auth","password-reset","request"] }
+      }
+    },
+    {
+      "name": "Auth / Password Reset - Confirm",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"reset_token\": \"<token>\",\n  \"new_password\": \"NewPassword123!\"\n}" },
+        "url": { "raw": "{{base_url}}/auth/password-reset/confirm", "host": ["{{base_url}}"], "path": ["auth","password-reset","confirm"] }
+      }
+    },
+    {
       "name": "CV / Parse",
       "request": {
         "method": "POST",

@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../api/config';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
+
     try {
       const res = await fetch(`${BASE_URL}/auth/login`, {
         method: 'POST',
@@ -26,6 +29,8 @@ export default function Login() {
       navigate('/dashboard');
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -43,6 +48,11 @@ export default function Login() {
               <h3>Login</h3>
             </div>
             {error && <div className="alert alert-danger">{error}</div>}
+            {isLoading && (
+              <div className="alert alert-warning loading-banner" role="status">
+                Logging you in... please wait.
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label">Email</label>
@@ -52,8 +62,14 @@ export default function Login() {
                 <label className="form-label">Password</label>
                 <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required />
               </div>
-              <button className="btn btn-primary w-100" type="submit">Login</button>
+              <button className="btn btn-primary w-100" type="submit" disabled={isLoading}>
+                {isLoading ? 'Logging in...' : 'Login'}
+              </button>
             </form>
+
+            <div className="mt-3 text-center">
+              <Link to="/reset-password">Forgot password?</Link>
+            </div>
           </div>
         </div>
       </div>
